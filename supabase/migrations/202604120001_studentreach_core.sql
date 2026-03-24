@@ -186,11 +186,27 @@ create table if not exists public.source_snapshots (
   fetched_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.university_faculty_sources (
+  id uuid primary key default gen_random_uuid(),
+  university_id uuid not null references public.universities(id) on delete cascade,
+  field text not null,
+  source_url text not null,
+  page_kind text not null,
+  confidence numeric(5,4) not null default 0,
+  metadata_json jsonb not null default '{}'::jsonb,
+  last_verified_at timestamptz not null default timezone('utc', now()),
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  unique (university_id, field)
+);
+
 create index if not exists universities_active_idx on public.universities (active);
 create index if not exists universities_openalex_idx on public.universities (openalex_institution_id);
 create index if not exists researchers_university_idx on public.researchers (university_id);
 create index if not exists researchers_field_idx on public.researchers (broad_field);
 create index if not exists researchers_title_flags_idx on public.researchers (is_professor, is_assistant_professor);
+create index if not exists researchers_source_idx on public.researchers (source, source_confidence desc);
+create index if not exists researchers_verified_faculty_idx on public.researchers (verified_faculty, broad_field);
 create index if not exists researchers_refresh_idx on public.researchers (last_source_refresh_at desc, last_ai_refresh_at desc);
 create index if not exists publications_researcher_idx on public.publications (researcher_id, publication_year desc);
 create index if not exists researcher_keywords_keyword_idx on public.researcher_keywords (keyword);
