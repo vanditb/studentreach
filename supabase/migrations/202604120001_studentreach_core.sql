@@ -319,6 +319,8 @@ as $$
           when query_embedding is not null and r.embedding is not null then greatest(0, 1 - (r.embedding <=> query_embedding)) * 0.35
           else 0
         end +
+        case when r.source = 'faculty_page' then 0.18 else 0 end +
+        least(coalesce(r.source_confidence, 0), 1) * 0.08 +
         case when requested_field is not null and r.broad_field = requested_field then 0.12 else 0 end +
         case when r.is_assistant_professor then 0.03 else 0 end +
         least(r.works_count / 250.0, 0.03) +
@@ -328,6 +330,7 @@ as $$
     join public.universities u on u.id = r.university_id
     where
       u.active = true
+      and r.verified_faculty = true
       and (requested_field is null or r.broad_field = requested_field)
       and (requested_university is null or r.university_id = requested_university)
       and (
@@ -373,6 +376,7 @@ as $$
   join public.universities u on u.id = r.university_id
   where
     u.active = true
+    and r.verified_faculty = true
     and (requested_field is null or r.broad_field = requested_field)
     and (requested_university is null or r.university_id = requested_university)
     and (
@@ -440,6 +444,7 @@ alter table public.search_events enable row level security;
 alter table public.generation_jobs enable row level security;
 alter table public.ai_cache_entries enable row level security;
 alter table public.source_snapshots enable row level security;
+alter table public.university_faculty_sources enable row level security;
 
 drop policy if exists "public can read universities" on public.universities;
 create policy "public can read universities"
@@ -462,6 +467,12 @@ create policy "public can read researcher keywords"
 drop policy if exists "public can read publications" on public.publications;
 create policy "public can read publications"
   on public.publications
+  for select
+  using (true);
+
+drop policy if exists "public can read university faculty sources" on public.university_faculty_sources;
+create policy "public can read university faculty sources"
+  on public.university_faculty_sources
   for select
   using (true);
 
