@@ -215,6 +215,7 @@ create index if not exists email_drafts_user_idx on public.email_drafts (user_id
 create index if not exists search_events_created_idx on public.search_events (created_at desc);
 create index if not exists generation_jobs_lookup_idx on public.generation_jobs (job_type, input_hash, status);
 create index if not exists ai_cache_entries_lookup_idx on public.ai_cache_entries (job_type, context_hash, expires_at desc);
+create index if not exists university_faculty_sources_lookup_idx on public.university_faculty_sources (university_id, field, confidence desc);
 
 create index if not exists researchers_embedding_idx
   on public.researchers
