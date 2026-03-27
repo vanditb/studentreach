@@ -21,7 +21,15 @@ type OpenAlexAuthor = {
   display_name: string;
   works_count: number;
   cited_by_count: number;
-  last_known_institutions?: Array<{ id: string; display_name: string }>;
+  affiliations?: Array<{
+    institution: {
+      id: string;
+      display_name: string;
+      type?: string;
+    };
+    years?: number[];
+  }>;
+  last_known_institutions?: Array<{ id: string; display_name: string; type?: string }>;
   summary_stats?: {
     h_index?: number;
   };
