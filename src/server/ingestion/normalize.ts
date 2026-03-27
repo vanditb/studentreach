@@ -15,7 +15,10 @@ export function summarizeWorks(works: OpenAlexWork[]) {
     .map((work) => expandOpenAlexAbstract(work.abstract_inverted_index))
     .filter(Boolean)
     .join(" ");
-  const keywords = extractKeywords(abstracts, 8);
+  const conceptKeywords = works
+    .flatMap((work) => work.concepts?.slice(0, 4).map((concept) => concept.display_name) ?? [])
+    .join(" ");
+  const keywords = extractKeywords(`${abstracts} ${conceptKeywords}`.trim(), 6);
   return {
     bioSummary: keywords.length
       ? `Research themes consistently touch on ${keywords.slice(0, 4).join(", ")}.`
