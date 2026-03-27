@@ -56,8 +56,17 @@ export function extractKeywords(input: string, limit = 8) {
     "their",
     "using",
     "study",
+    "studies",
     "research",
     "work",
+    "analysis",
+    "method",
+    "methods",
+    "result",
+    "results",
+    "paper",
+    "papers",
+    "approach",
   ]);
 
   return [...new Set(
