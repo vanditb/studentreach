@@ -6,6 +6,7 @@ const OPENALEX_API = "https://api.openalex.org";
 type OpenAlexInstitution = {
   id: string;
   display_name: string;
+  type?: string;
   geo?: {
     latitude?: number;
     longitude?: number;
