@@ -17,6 +17,119 @@ const trackedFields: Field[] = [
   "Chemistry",
 ];
 
+const prioritizedUniversityNames = new Set([
+  "Rutgers University",
+  "New Jersey Institute of Technology",
+  "Princeton University",
+  "Stevens Institute of Technology",
+  "Yale University",
+  "Massachusetts Institute of Technology",
+  "Columbia University",
+  "New York University",
+]);
+
+const cachableFacultyPageKinds = new Set([
+  "department_faculty",
+  "department_directory",
+  "subschool_faculty",
+]);
+
+function isEducationInstitution(type: string | null | undefined) {
+  const normalized = (type ?? "").trim().toLowerCase();
+  return normalized === "education" || normalized.includes("university") || normalized.includes("college") || normalized.includes("school");
+}
+
+function getKeywordList(keywordsText: string) {
+  return keywordsText.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 6);
+}
+
+function hasTrustedFallbackUniversityMatch(author: OpenAlexAuthor, universityInstitutionId: string) {
+  const primaryInstitution = author.last_known_institutions?.[0];
+  if (!primaryInstitution || primaryInstitution.id !== universityInstitutionId || !isEducationInstitution(primaryInstitution.type)) {
+    return false;
+  }
+
+  const currentYear = new Date().getFullYear();
+  const exactRecentAffiliation = (author.affiliations ?? []).some((affiliation) =>
+    affiliation.institution.id === universityInstitutionId
+    && isEducationInstitution(affiliation.institution.type)
+    && (affiliation.years ?? []).some((year) => year >= currentYear - 3),
+  );
+
+  if (!exactRecentAffiliation) {
+    return false;
+  }
+
+  const competingRecentNonEducation = (author.affiliations ?? []).some((affiliation) =>
+    affiliation.institution.id !== universityInstitutionId
+    && !isEducationInstitution(affiliation.institution.type)
+    && (affiliation.years ?? []).some((year) => year >= currentYear - 1),
+  );
+
+  return !competingRecentNonEducation;
+}
+
+function estimateProfessorLikelihood({
+  author,
+  authorWorks,
+  keywordCount,
+  facultySignalStrength,
+}: {
+  author: OpenAlexAuthor;
+  authorWorks: OpenAlexWork[];
+  keywordCount: number;
+  facultySignalStrength: number;
+}) {
+  let score = 0.22;
+
+  if (facultySignalStrength > 0) {
+    score += Math.min(facultySignalStrength, 0.12);
+  }
+
+  if (author.works_count >= 120) {
+    score += 0.24;
+  } else if (author.works_count >= 60) {
+    score += 0.18;
+  } else if (author.works_count >= 25) {
+    score += 0.1;
+  }
+
+  if (author.cited_by_count >= 2500) {
+    score += 0.22;
+  } else if (author.cited_by_count >= 750) {
+    score += 0.16;
+  } else if (author.cited_by_count >= 200) {
+    score += 0.1;
+  }
+
+  const hIndex = author.summary_stats?.h_index ?? 0;
+  if (hIndex >= 35) {
+    score += 0.18;
+  } else if (hIndex >= 20) {
+    score += 0.12;
+  } else if (hIndex >= 12) {
+    score += 0.07;
+  }
+
+  const currentYear = new Date().getFullYear();
+  const recentWorkCount = authorWorks.filter((work) => work.publication_year && work.publication_year >= currentYear - 5).length;
+  if (recentWorkCount >= 5) {
+    score += 0.08;
+  } else if (recentWorkCount >= 2) {
+    score += 0.04;
+  }
+
+  if (keywordCount >= 5) {
+    score += 0.08;
+  } else if (keywordCount >= 3) {
+    score += 0.05;
+  } else if (keywordCount >= 1) {
+    score += 0.02;
+  }
+
+  return Math.min(Number(score.toFixed(4)), 0.99);
+}
+
 export class StudentReachIngestionPipeline {
   constructor(private readonly openAlex = new OpenAlexClient()) {}
 
