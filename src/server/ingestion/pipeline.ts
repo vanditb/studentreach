@@ -1,7 +1,8 @@
 import { getSql, withTransaction } from "@/server/db/postgres";
 import { seededUniversities } from "@/data/seed/universities";
+import { getSeededFacultySource } from "@/data/seed/faculty-sources";
 import { enrichFromFacultyDirectory } from "@/server/ingestion/faculty-enrichment";
-import { OpenAlexClient } from "@/server/ingestion/openalex-client";
+import { OpenAlexClient, type OpenAlexAuthor, type OpenAlexWork } from "@/server/ingestion/openalex-client";
 import { inferBroadFieldFromKeywords, normalizeResearcherName, normalizeResearcherTitle, summarizeCurrentFocus, summarizeWorks } from "@/server/ingestion/normalize";
 import { fieldKeywords } from "@/server/search/field-mapping";
 import { type Field } from "@/types";
