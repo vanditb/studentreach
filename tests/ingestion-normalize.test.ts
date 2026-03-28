@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { summarizeCurrentFocus, summarizeWorks } from "@/server/ingestion/normalize";
 import { type OpenAlexWork } from "@/server/ingestion/openalex-client";
+import { extractKeywords, normalizeAcademicTitle } from "@/server/ranking/normalization";
+import { classifyCandidateUrl, scoreDirectoryPage } from "@/server/ingestion/faculty-enrichment";
 
 const works: OpenAlexWork[] = [
   {
