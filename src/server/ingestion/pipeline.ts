@@ -189,16 +189,72 @@ export class StudentReachIngestionPipeline {
     }
   }
 
+  async resetResearchData() {
+    await withTransaction(async (tx) => {
+      await tx`delete from public.publications`;
+      await tx`delete from public.researcher_keywords`;
+      await tx`delete from public.source_snapshots`;
+      await tx`delete from public.researchers`;
+      await tx`delete from public.university_faculty_sources`;
+    });
+  }
+
   async ingestResearchers(limitPerField = 15) {
     const sql = getSql();
-    const universities = await sql<{ id: string; openalex_institution_id: string; name: string; faculty_directory_url: string | null }[]>`
-      select id, openalex_institution_id, name, faculty_directory_url
+    const universities = await sql<{ id: string; openalex_institution_id: string; name: string; faculty_directory_url: string | null; website_url: string | null }[]>`
+      select id, openalex_institution_id, name, faculty_directory_url, website_url
       from public.universities
       where active = true and openalex_institution_id is not null
     `;
+    universities.sort((left, right) => {
+      const leftPriority = prioritizedUniversityNames.has(left.name) ? 0 : 1;
+      const rightPriority = prioritizedUniversityNames.has(right.name) ? 0 : 1;
+      if (leftPriority !== rightPriority) {
+        return leftPriority - rightPriority;
+      }
+      return left.name.localeCompare(right.name);
+    });
+    const cachedSources = await sql<{ university_id: string; field: string; source_url: string; page_kind: string; confidence: string }[]>`
+      select university_id, field, source_url, page_kind, confidence::text
+      from public.university_faculty_sources
+    `;
+    const cachedSourceMap = new Map(
+      cachedSources
+        .filter((entry) => cachableFacultyPageKinds.has(entry.page_kind) && Number(entry.confidence) >= 0.72)
+        .map((entry) => [`${entry.university_id}::${entry.field}`, entry]),
+    );
+    const processedAuthorIds = new Set<string>();
+    const counters = {
+      universitiesProcessed: universities.length,
+      authorsFetched: 0,
+      skippedDuplicate: 0,
+      skippedNoAffiliation: 0,
+      skippedNotEducationAffiliation: 0,
+      skippedNoTitle: 0,
+      skippedNotProfessor: 0,
+      skippedMissingName: 0,
+      skippedMissingKeyword: 0,
+      skippedWeakUniversityMatch: 0,
+      skippedLowFallbackConfidence: 0,
+      savedVerifiedFaculty: 0,
+      savedFallbackCandidates: 0,
+      saved: 0,
+    };
+    const coverage = {
+      candidateFacultyPagesFound: 0,
+      highConfidenceDepartmentPagesFound: 0,
+      verifiedRowsByUniversity: new Map<string, number>(),
+      verifiedRowsByPageKind: new Map<string, number>(),
+    };
+    const seenCoverageKeys = new Set<string>();
 
     for (const university of universities) {
       for (const field of trackedFields) {
+        const cachedSource = cachedSourceMap.get(`${university.id}::${field}`);
+        const seededSource = getSeededFacultySource(university.name, field);
+        const preferredFacultySourceUrl = seededSource?.url
+          ?? cachedSource?.source_url
+          ?? university.faculty_directory_url;
         const primaryKeyword = fieldKeywords(field)[0] ?? field;
         const works = await this.openAlex.getInstitutionWorks(university.openalex_institution_id, primaryKeyword, limitPerField);
 
