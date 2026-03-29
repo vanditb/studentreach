@@ -263,15 +263,157 @@ export class StudentReachIngestionPipeline {
             if (!authorship.author?.id) {
               continue;
             }
+            if (processedAuthorIds.has(authorship.author.id)) {
+              counters.skippedDuplicate += 1;
+              continue;
+            }
+            processedAuthorIds.add(authorship.author.id);
+            counters.authorsFetched += 1;
 
             const author = await this.openAlex.getAuthor(authorship.author.id);
+            const affiliation = author.last_known_institutions?.find(
+              (institution) => institution.id === university.openalex_institution_id,
+            );
+            if (!affiliation?.display_name) {
+              counters.skippedNoAffiliation += 1;
+              continue;
+            }
+            if (!isEducationInstitution(affiliation.type)) {
+              counters.skippedNotEducationAffiliation += 1;
+              continue;
+            }
+
             const authorWorks = await this.openAlex.getAuthorWorks(authorship.author.id, 6);
             const summaries = summarizeWorks(authorWorks);
+            const keywords = getKeywordList(summaries.keywordsText);
             const enrichment = await enrichFromFacultyDirectory({
-              directoryUrl: university.faculty_directory_url,
+              directoryUrl: preferredFacultySourceUrl,
+              websiteUrl: university.website_url,
+              field,
               researcherName: author.display_name,
             });
+            const coverageKey = `${university.id}::${field}`;
+            if (!seenCoverageKeys.has(coverageKey) && enrichment.directoryUrl) {
+              seenCoverageKeys.add(coverageKey);
+              coverage.candidateFacultyPagesFound += 1;
+              if (enrichment.isHighConfidence && enrichment.pageKind === "department_faculty") {
+                coverage.highConfidenceDepartmentPagesFound += 1;
+              }
+            }
+            const shouldCachePreferredSource = Boolean(
+              enrichment.directoryUrl
+              && enrichment.isHighConfidence
+              && cachableFacultyPageKinds.has(enrichment.pageKind),
+            );
+
+            if (shouldCachePreferredSource && enrichment.directoryUrl) {
+              university.faculty_directory_url = enrichment.directoryUrl;
+              await sql`
+                update public.universities
+                set faculty_directory_url = ${enrichment.directoryUrl}
+                where id = ${university.id}
+              `;
+              await sql`
+                insert into public.university_faculty_sources (
+                  university_id,
+                  field,
+                  source_url,
+                  page_kind,
+                  confidence,
+                  metadata_json,
+                  last_verified_at
+                )
+                values (
+                  ${university.id},
+                  ${field},
+                  ${enrichment.directoryUrl},
+                  ${enrichment.pageKind},
+                  ${enrichment.confidence},
+                  ${JSON.stringify({
+                    candidatePagesFound: enrichment.candidatePagesFound,
+                    isHighConfidence: enrichment.isHighConfidence,
+                    seededPreferredSource: seededSource?.url ?? null,
+                  })}::jsonb,
+                  timezone('utc', now())
+                )
+                on conflict (university_id, field) do update set
+                  source_url = excluded.source_url,
+                  page_kind = excluded.page_kind,
+                  confidence = excluded.confidence,
+                  metadata_json = excluded.metadata_json,
+                  last_verified_at = excluded.last_verified_at,
+                  updated_at = timezone('utc', now())
+              `;
+            }
+            if (!author.display_name?.trim()) {
+              counters.skippedMissingName += 1;
+              continue;
+            }
+            if (!keywords.length) {
+              counters.skippedMissingKeyword += 1;
+              continue;
+            }
+
+            let source: "faculty_page" | "openalex" = "faculty_page";
+            let sourceConfidence = Math.max(enrichment.confidence, 0.72);
             const normalizedTitle = normalizeResearcherTitle(enrichment.title);
+            let verifiedFaculty = false;
+            let storedTitle: string | null = null;
+            let storedTitleNormalized: string | null = null;
+            let isProfessor = false;
+            let isAssistantProfessor = false;
+            let inferredTitle: string | null = null;
+            let inferredTitleConfidence: number | null = null;
+            let trustedTitleSourceUrl: string | null = null;
+
+            const canTrustFacultyPage = enrichment.isHighConfidence
+              && enrichment.pageKind !== "directory"
+              && normalizedTitle.normalizedTitle
+              && normalizedTitle.isProfessor;
+
+            if (canTrustFacultyPage) {
+              verifiedFaculty = true;
+              storedTitle = normalizedTitle.normalizedTitle;
+              storedTitleNormalized = normalizedTitle.normalizedTitle;
+              isProfessor = normalizedTitle.isProfessor;
+              isAssistantProfessor = normalizedTitle.isAssistantProfessor;
+              trustedTitleSourceUrl = enrichment.facultyPageUrl ?? enrichment.directoryUrl;
+            } else {
+              if (!hasTrustedFallbackUniversityMatch(author, university.openalex_institution_id)) {
+                counters.skippedWeakUniversityMatch += 1;
+                continue;
+              }
+
+              const missingTitle = !enrichment.title;
+              const notProfessor = Boolean(enrichment.title) && !normalizedTitle.isProfessor;
+
+              const fallbackScore = estimateProfessorLikelihood({
+                author,
+                authorWorks,
+                keywordCount: keywords.length,
+                facultySignalStrength: enrichment.pageKind === "department_faculty"
+                  ? 0.08
+                  : enrichment.pageKind === "generic_faculty"
+                    ? 0.04
+                    : 0.01,
+              });
+
+              if (fallbackScore < 0.62) {
+                if (missingTitle) {
+                  counters.skippedNoTitle += 1;
+                } else if (notProfessor) {
+                  counters.skippedNotProfessor += 1;
+                }
+                counters.skippedLowFallbackConfidence += 1;
+                continue;
+              }
+
+              source = "openalex";
+              sourceConfidence = fallbackScore;
+              inferredTitle = normalizedTitle.normalizedTitle ?? "Professor";
+              inferredTitleConfidence = fallbackScore;
+            }
+
             const inferredField = inferBroadFieldFromKeywords(
               `${summaries.keywordsText} ${(work.concepts ?? []).map((concept) => concept.display_name).join(" ")}`,
               field,
