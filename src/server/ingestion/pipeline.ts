@@ -439,6 +439,12 @@ export class StudentReachIngestionPipeline {
                   bio_summary,
                   current_focus_summary,
                   past_research_themes,
+                  source,
+                  source_confidence,
+                  verified_faculty,
+                  inferred_title,
+                  inferred_title_confidence,
+                  trusted_title_source_url,
                   works_count,
                   cited_by_count,
                   last_source_refresh_at
