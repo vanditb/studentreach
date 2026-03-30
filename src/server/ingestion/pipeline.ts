@@ -508,7 +508,7 @@ export class StudentReachIngestionPipeline {
 
               await tx`delete from public.researcher_keywords where researcher_id = ${researcher.id}`;
 
-              for (const keyword of summaries.keywordsText.split(",").map((item) => item.trim()).filter(Boolean)) {
+              for (const keyword of keywords) {
                 await tx`
                   insert into public.researcher_keywords (researcher_id, keyword, weight)
                   values (${researcher.id}, ${keyword}, 1)
@@ -559,10 +559,55 @@ export class StudentReachIngestionPipeline {
                   ${JSON.stringify(author)}::jsonb
                 )
               `;
+
+              if (enrichment.directoryUrl || enrichment.facultyPageUrl) {
+                await tx`
+                  insert into public.source_snapshots (researcher_id, source_type, source_url, source_payload_json)
+                  values (
+                    ${researcher.id},
+                    'faculty-page',
+                    ${enrichment.facultyPageUrl ?? enrichment.directoryUrl},
+                    ${JSON.stringify({
+                      directoryUrl: enrichment.directoryUrl,
+                      facultyPageUrl: enrichment.facultyPageUrl,
+                      title: enrichment.title,
+                      publicEmail: enrichment.publicEmail,
+                      pageKind: enrichment.pageKind,
+                      confidence: enrichment.confidence,
+                      isHighConfidence: enrichment.isHighConfidence,
+                    })}::jsonb
+                  )
+                `;
+              }
             });
+
+            if (verifiedFaculty) {
+              counters.savedVerifiedFaculty += 1;
+              coverage.verifiedRowsByUniversity.set(
+                university.name,
+                (coverage.verifiedRowsByUniversity.get(university.name) ?? 0) + 1,
+              );
+              coverage.verifiedRowsByPageKind.set(
+                enrichment.pageKind,
+                (coverage.verifiedRowsByPageKind.get(enrichment.pageKind) ?? 0) + 1,
+              );
+            } else {
+              counters.savedFallbackCandidates += 1;
+            }
+            counters.saved += 1;
           }
         }
       }
     }
+
+    console.log("Ingestion summary:", counters);
+    console.log("Coverage summary:", {
+      universitiesProcessed: counters.universitiesProcessed,
+      candidateFacultyPagesFound: coverage.candidateFacultyPagesFound,
+      highConfidenceDepartmentPagesFound: coverage.highConfidenceDepartmentPagesFound,
+      verifiedRowsCreated: counters.savedVerifiedFaculty,
+      verifiedRowsByUniversity: Object.fromEntries(coverage.verifiedRowsByUniversity),
+      verifiedRowsByPageKind: Object.fromEntries(coverage.verifiedRowsByPageKind),
+    });
   }
 }
