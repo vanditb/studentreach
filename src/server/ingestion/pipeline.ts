@@ -494,6 +494,12 @@ export class StudentReachIngestionPipeline {
                   bio_summary = excluded.bio_summary,
                   current_focus_summary = excluded.current_focus_summary,
                   past_research_themes = excluded.past_research_themes,
+                  source = excluded.source,
+                  source_confidence = excluded.source_confidence,
+                  verified_faculty = excluded.verified_faculty,
+                  inferred_title = excluded.inferred_title,
+                  inferred_title_confidence = excluded.inferred_title_confidence,
+                  trusted_title_source_url = excluded.trusted_title_source_url,
                   works_count = excluded.works_count,
                   cited_by_count = excluded.cited_by_count,
                   last_source_refresh_at = excluded.last_source_refresh_at
