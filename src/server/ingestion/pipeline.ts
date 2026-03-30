@@ -480,7 +480,12 @@ export class StudentReachIngestionPipeline {
                 on conflict (openalex_author_id) do update set
                   full_name = excluded.full_name,
                   normalized_name = excluded.normalized_name,
+                  title = excluded.title,
+                  title_normalized = excluded.title_normalized,
+                  is_professor = excluded.is_professor,
+                  is_assistant_professor = excluded.is_assistant_professor,
                   university_id = excluded.university_id,
+                  department = coalesce(excluded.department, public.researchers.department),
                   broad_field = excluded.broad_field,
                   specific_interests_text = excluded.specific_interests_text,
                   keywords_text = excluded.keywords_text,
