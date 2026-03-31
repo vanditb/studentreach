@@ -194,7 +194,7 @@ export class PostgresRepository implements StudentReachRepository {
       from public.researchers r
       join public.universities u on u.id = r.university_id
       left join public.researcher_keywords rk on rk.researcher_id = r.id
-      where r.id = ${id}
+      where r.id = ${id} and r.verified_faculty = true
       group by r.id, u.name, u.city, u.state, u.latitude, u.longitude
       limit 1
     `;
