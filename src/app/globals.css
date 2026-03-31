@@ -63,9 +63,8 @@ html {
 body {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.25), transparent 20%),
-    radial-gradient(circle at top left, rgba(185, 138, 73, 0.12), transparent 28%),
-    linear-gradient(180deg, #fbf7f0 0%, #f7f1e8 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0)),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-body), sans-serif;
   text-rendering: optimizeLegibility;
