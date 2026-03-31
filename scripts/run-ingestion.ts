@@ -2,6 +2,7 @@ import { StudentReachIngestionPipeline } from "@/server/ingestion/pipeline";
 
 async function main() {
   const pipeline = new StudentReachIngestionPipeline();
+  await pipeline.resetResearchData();
   await pipeline.seedUniversities();
   await pipeline.mapOpenAlexInstitutions();
   await pipeline.ingestResearchers();
