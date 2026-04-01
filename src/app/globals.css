@@ -101,30 +101,28 @@ button,
 
 .paper-grid {
   background-image:
-    linear-gradient(rgba(35, 66, 95, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(35, 66, 95, 0.045) 1px, transparent 1px);
-  background-size: 22px 22px;
+    linear-gradient(rgba(47, 93, 124, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 93, 124, 0.035) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .margin-rule::before {
   content: "";
   position: absolute;
   inset-block: 0;
-  left: 1.25rem;
+  left: 1rem;
   width: 1px;
   background: linear-gradient(
     180deg,
     transparent 0%,
-    rgba(120, 149, 139, 0.35) 12%,
-    rgba(120, 149, 139, 0.2) 88%,
+    rgba(47, 93, 124, 0.25) 12%,
+    rgba(47, 93, 124, 0.12) 88%,
     transparent 100%
   );
 }
 
 .note-shadow {
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 16px 36px rgba(21, 36, 50, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .paper-panel {
