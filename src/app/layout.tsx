@@ -16,7 +16,7 @@ const displayFont = Crimson_Pro({
 export const metadata: Metadata = {
   title: "StudentReach",
   description:
-    "A polished research workspace that helps high school students find the right professors, understand their work, and draft stronger outreach emails.",
+    "StudentReach helps high school students find professors, understand what they do, and write better cold emails.",
 };
 
 export default function RootLayout({
