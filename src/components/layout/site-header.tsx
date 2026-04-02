@@ -51,9 +51,7 @@ export function SiteHeader({ appMode = false }: { appMode?: boolean }) {
             <>
               <div className="hidden text-right sm:block">
                 <div className="text-sm font-medium text-foreground">{user.name}</div>
-                <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  {user.mode === "demo" ? "Demo Mode" : "Signed In"}
-                </div>
+                <div className="text-xs text-muted-foreground">{user.mode === "demo" ? "Demo mode" : "Account"}</div>
               </div>
               <Avatar className="h-10 w-10">
                 <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
