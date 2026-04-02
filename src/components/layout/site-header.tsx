@@ -19,21 +19,25 @@ const appLinks = [
 export function SiteHeader({ appMode = false }: { appMode?: boolean }) {
   const pathname = usePathname();
   const { user, logout, continueAsDemo } = useAuth();
+  const marketingLinks = [
+    { href: "#how-it-works", label: "How it works" },
+    { href: "#preview", label: "Preview" },
+  ];
 
   return (
-    <header className="sticky top-4 z-40 mx-auto w-[min(1180px,calc(100%-1.5rem))]">
-      <div className="paper-panel flex items-center justify-between gap-4 rounded-[1.6rem] px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/92 backdrop-blur-sm">
+      <div className="mx-auto flex w-[min(1180px,calc(100%-1.5rem))] items-center justify-between gap-4 px-1 py-4 sm:px-0">
         <Logo href={appMode ? "/discover" : "/"} />
 
         <nav className="hidden items-center gap-1 md:flex">
-          {(appMode ? appLinks : [{ href: "#how-it-works", label: "How it works" }, { href: "#preview", label: "Preview" }, { href: "#why-studentreach", label: "Why it feels different" }]).map(
+          {(appMode ? appLinks : marketingLinks).map(
             (item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
                   "rounded-full px-4 py-2 text-sm text-muted-foreground hover:bg-white/70 hover:text-foreground",
-                  pathname === item.href && "bg-white text-foreground shadow-sm",
+                  pathname === item.href && "bg-white text-foreground",
                 )}
               >
                 {item.label}
