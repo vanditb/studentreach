@@ -69,7 +69,7 @@ export function SiteHeader({ appMode = false }: { appMode?: boolean }) {
                     <Link href="/login">Log in</Link>
                   </Button>
                   <Button asChild>
-                    <Link href="/signup">Start free</Link>
+                    <Link href="/signup">Create account</Link>
                   </Button>
                 </>
               ) : (
