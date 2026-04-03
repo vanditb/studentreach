@@ -2,12 +2,18 @@
 
 import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { AlertCircle, Compass, LoaderCircle } from "lucide-react";
+import { AlertCircle, LoaderCircle } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/shared/empty-state";
-import { AnnotationBadge } from "@/components/shared/annotation-badge";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useProfessorSearch, useProfile, useShortlist, useToggleShortlist, useUniversities } from "@/hooks/use-studentreach";
+import {
+  useProfessorSearch,
+  useProfile,
+  useShortlist,
+  useToggleShortlist,
+  useUniversities,
+} from "@/hooks/use-studentreach";
 import { type Field, type ProfessorTitle, type SearchParams } from "@/types";
 import { ProfessorCard } from "./professor-card";
 import { ResearchSearchBar } from "./research-search-bar";
