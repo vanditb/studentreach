@@ -29,12 +29,38 @@ const defaultFilters: SearchParams = {
 };
 
 export function DiscoverPage() {
+  const searchParams = useSearchParams();
   const { data: profile } = useProfile();
   const { data: shortlist = [] } = useShortlist();
   const toggleShortlist = useToggleShortlist();
   const { data: universities = [] } = useUniversities();
   const [filters, setFilters] = useState<SearchParams>(defaultFilters);
   const [hydrated, setHydrated] = useState(false);
+  const [queryHydrated, setQueryHydrated] = useState(false);
+
+  useEffect(() => {
+    if (queryHydrated) {
+      return;
+    }
+
+    const topic = searchParams.get("topic");
+    const location = searchParams.get("location");
+    const radius = searchParams.get("radius");
+
+    if (!topic && !location && !radius) {
+      setQueryHydrated(true);
+      return;
+    }
+
+    setFilters((current) => ({
+      ...current,
+      topic: topic ?? current.topic,
+      location: location ?? current.location,
+      radiusMiles: radius ? Number(radius) || current.radiusMiles : current.radiusMiles,
+    }));
+    setHydrated(true);
+    setQueryHydrated(true);
+  }, [queryHydrated, searchParams]);
 
   useEffect(() => {
     if (profile && !hydrated) {
