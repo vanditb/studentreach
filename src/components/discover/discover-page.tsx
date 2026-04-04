@@ -101,16 +101,13 @@ export function DiscoverPage() {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+      <div className="grid gap-6 border-b border-border pb-8 lg:grid-cols-[1fr_auto] lg:items-end">
         <SectionHeading
-          eyebrow="Discover"
-          title="Find professors worth the deeper click."
-          description="Search stays fast. Heavier analysis happens once you open a profile, so you can scan broadly before spending time on details."
+          eyebrow="Search"
+          title="Find professors"
+          description="Search by interest, location, and radius."
         />
-        <div className="flex flex-wrap gap-3">
-          <AnnotationBadge label={resultCountLabel} tone="green" />
-          <AnnotationBadge label="Assistant professors included" tone="blue" />
-        </div>
+        <div className="text-sm text-muted-foreground">{resultCountLabel}</div>
       </div>
 
       <ResearchSearchBar
