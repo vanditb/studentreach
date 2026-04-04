@@ -119,7 +119,7 @@ export function DiscoverPage() {
         onRadiusChange={(value) => updateFilters({ radiusMiles: value })}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)]">
         <div className="space-y-4">
           <SearchFilters
             field={filters.field}
@@ -131,48 +131,45 @@ export function DiscoverPage() {
             onTitleChange={toggleTitle}
           />
 
-          <div className="rounded-[1.8rem] border border-dashed border-border-strong bg-white/65 p-5 text-sm leading-6 text-muted-foreground">
-            <div className="mb-2 flex items-center gap-2 font-medium text-foreground">
-              <Compass className="h-4 w-4 text-primary" />
-              Research workflow note
-            </div>
-            Search results render from a fast list endpoint shape. Detail pages can afford the slower, richer analysis after you click in.
+          <div className="rounded-[1.4rem] border border-border bg-white/55 p-4 text-sm leading-6 text-muted-foreground">
+            Save professors you like, then come back later to compare them or start an email.
           </div>
         </div>
 
         <div className="space-y-4">
           {searchQuery.isLoading ? (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="rounded-[1.8rem] border border-border-strong bg-white/70 p-5">
-                  <Skeleton className="h-6 w-40" />
-                  <Skeleton className="mt-3 h-4 w-56" />
-                  <Skeleton className="mt-5 h-24 w-full" />
-                  <Skeleton className="mt-4 h-10 w-full" />
+                <div key={index} className="rounded-[1.5rem] border border-border-strong bg-paper p-5">
+                  <Skeleton className="h-7 w-48" />
+                  <Skeleton className="mt-3 h-4 w-72" />
+                  <Skeleton className="mt-5 h-20 w-full" />
+                  <Skeleton className="mt-5 h-10 w-32" />
                 </div>
               ))}
             </div>
           ) : searchQuery.isError ? (
-            <div className="rounded-[1.8rem] border border-destructive/20 bg-destructive/10 p-5 text-sm text-destructive">
+            <div className="rounded-[1.5rem] border border-destructive/20 bg-destructive/10 p-5 text-sm text-destructive">
               <div className="mb-2 flex items-center gap-2 font-medium">
                 <AlertCircle className="h-4 w-4" />
-                Search ran into a problem
+                Search error
               </div>
-              Please try again. The service layer is already isolated, so this is safe to swap for a real backend later.
+              Please try again.
             </div>
           ) : searchQuery.data?.results.length ? (
             <>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 {toggleShortlist.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                Scan first. Deeper summaries appear when you open a professor profile.
+                Assistant professors are included in results.
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
+
+              <div className="grid gap-4">
                 {searchQuery.data.results.map((professor, index) => (
                   <motion.div
                     key={professor.id}
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.04, duration: 0.35, ease: "easeOut" }}
+                    transition={{ delay: index * 0.03, duration: 0.32, ease: "easeOut" }}
                   >
                     <ProfessorCard
                       professor={professor}
@@ -185,8 +182,8 @@ export function DiscoverPage() {
             </>
           ) : (
             <EmptyState
-              title="No professors matched yet"
-              description="Try widening the radius, removing one filter, or searching by a broader topic. The mock dataset covers 50+ major universities across seven fields."
+              title="No professors found"
+              description="Try a broader topic or widen the radius."
             />
           )}
         </div>
