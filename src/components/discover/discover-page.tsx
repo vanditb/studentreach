@@ -80,8 +80,9 @@ export function DiscoverPage() {
 
   const resultCountLabel = useMemo(() => {
     if (!searchQuery.data) {
-      return "Loading";
+      return "Searching...";
     }
+
     return `${searchQuery.data.total} professors`;
   }, [searchQuery.data]);
 
