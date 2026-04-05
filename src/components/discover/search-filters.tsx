@@ -23,7 +23,7 @@ export function SearchFilters({
   onTitleChange(value: ProfessorTitle, checked: boolean): void;
 }) {
   return (
-    <div className="space-y-5 rounded-[1.8rem] border border-border-strong bg-white/72 p-5">
+    <div className="space-y-5 rounded-[1.5rem] border border-border-strong bg-paper p-5">
       <div className="space-y-2">
         <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Field</div>
         <Select value={field ?? "All"} onValueChange={(value) => onFieldChange(value as Field | "All")}>
@@ -66,9 +66,7 @@ export function SearchFilters({
               <Checkbox checked={titles?.includes(title)} onCheckedChange={(checked) => onTitleChange(title, Boolean(checked))} />
               <div className="space-y-1">
                 <Label className="cursor-pointer">{title}</Label>
-                {title === "Assistant Professor" ? (
-                  <p className="text-sm text-muted-foreground">Included in results naturally, even though the product speaks in terms of professors.</p>
-                ) : null}
+                {title === "Assistant Professor" ? <p className="text-sm text-muted-foreground">Included in results.</p> : null}
               </div>
             </label>
           ))}
