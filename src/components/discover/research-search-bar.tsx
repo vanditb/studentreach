@@ -20,7 +20,8 @@ export function ResearchSearchBar({
   onRadiusChange(value: number): void;
 }) {
   return (
-    <div className="grid gap-3 rounded-[1.8rem] border border-border-strong bg-white/78 p-4 shadow-sm lg:grid-cols-[1.4fr_0.9fr_150px_auto]">
+    <div className="rounded-[1.5rem] border border-border-strong bg-paper p-4 sm:p-5">
+      <div className="grid gap-3 lg:grid-cols-[1.4fr_0.9fr_150px_auto]">
       <div className="space-y-2">
         <label htmlFor="interest-topic" className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
           Interest or topic
@@ -62,6 +63,7 @@ export function ResearchSearchBar({
           <Search className="h-4 w-4" />
           Search
         </Button>
+      </div>
       </div>
     </div>
   );
