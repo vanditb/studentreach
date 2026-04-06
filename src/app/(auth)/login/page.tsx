@@ -46,20 +46,18 @@ export default function LoginPage() {
       <div className="space-y-6 px-2">
         <Logo />
         <div className="space-y-4">
-          <div className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Student research workspace</div>
-          <h1 className="font-serif text-5xl leading-tight text-foreground">Come back to your research desk.</h1>
+          <div className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Welcome back</div>
+          <h1 className="font-serif text-5xl leading-tight text-foreground">Log in to keep going.</h1>
           <p className="max-w-xl text-base leading-7 text-muted-foreground">
-            Log in to continue exploring professors, refining your shortlist, and polishing outreach drafts. For local testing, demo mode is always available.
+            Keep searching, saving professors, and writing emails.
           </p>
         </div>
       </div>
 
-      <Card className="mx-auto w-full max-w-xl bg-white/82">
+      <Card className="mx-auto w-full max-w-xl bg-paper">
         <CardHeader>
           <CardTitle>Log in</CardTitle>
-          <CardDescription>
-            Supabase-ready when credentials are present. Without them, the app falls back to a local demo-friendly session.
-          </CardDescription>
+          <CardDescription>Use your account or continue in demo mode.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
