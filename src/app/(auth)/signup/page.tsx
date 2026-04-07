@@ -48,15 +48,15 @@ export default function SignupPage() {
       <div className="space-y-6 px-2">
         <Logo />
         <div className="space-y-4">
-          <div className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Built for high school outreach</div>
-          <h1 className="font-serif text-5xl leading-tight text-foreground">Create your StudentReach desk.</h1>
+          <div className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Get started</div>
+          <h1 className="font-serif text-5xl leading-tight text-foreground">Create your account.</h1>
           <p className="max-w-xl text-base leading-7 text-muted-foreground">
-            Save your research notes, keep a shortlist of professors, and refine outreach drafts in one place. You can also skip straight into demo mode and explore now.
+            Save professors, keep drafts, and come back later.
           </p>
         </div>
       </div>
 
-      <Card className="mx-auto w-full max-w-xl bg-white/82">
+      <Card className="mx-auto w-full max-w-xl bg-paper">
         <CardHeader>
           <CardTitle>Create an account</CardTitle>
           <CardDescription>
