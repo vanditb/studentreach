@@ -20,13 +20,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen pb-24">
       <SiteHeader appMode />
       {!user ? (
-        <div className="mx-auto mt-4 w-[min(1180px,calc(100%-1.5rem))] rounded-[1.4rem] border border-dashed border-border-strong bg-white/60 px-5 py-4 text-sm text-muted-foreground">
-          You can explore StudentReach right away in demo mode. Sign in later if you want to wire up Supabase auth with real credentials.
+        <div className="mx-auto mt-4 w-[min(1180px,calc(100%-1.5rem))] rounded-[1rem] border border-border bg-white/60 px-5 py-3 text-sm text-muted-foreground">
+          You&apos;re browsing in demo mode.
         </div>
       ) : null}
       <main className="mx-auto w-[min(1180px,calc(100%-1.5rem))] py-8">{children}</main>
 
-      <div className="fixed inset-x-0 bottom-4 z-30 mx-auto flex w-[min(92vw,420px)] items-center justify-between rounded-full border border-border-strong bg-paper-strong px-3 py-2 shadow-xl md:hidden">
+      <div className="fixed inset-x-0 bottom-4 z-30 mx-auto flex w-[min(92vw,420px)] items-center justify-between rounded-full border border-border-strong bg-paper-strong px-3 py-2 shadow-lg md:hidden">
         {quickLinks.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
