@@ -32,14 +32,12 @@ export function DraftEditor({
   onSave(): void;
 }) {
   return (
-    <Card className="bg-white/82">
+    <Card className="bg-paper">
       <CardHeader className="space-y-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
-            <CardTitle>Draft Editor</CardTitle>
-            <p className="text-sm leading-6 text-muted-foreground">
-              Students copy the final email and send it themselves. This workspace is for drafting and coaching only.
-            </p>
+            <CardTitle>Email</CardTitle>
+            <p className="text-sm leading-6 text-muted-foreground">Write, edit, save, and copy your email.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={onGenerate} disabled={!professor}>
@@ -70,11 +68,11 @@ export function DraftEditor({
             className="grid gap-3 md:col-span-3 md:grid-cols-3"
           >
             {([
-              ["curious", "Curious / exploratory"],
+              ["curious", "Curious"],
               ["project-based", "Project-based"],
-              ["formal", "More formal"],
+              ["formal", "Formal"],
             ] as const).map(([value, label]) => (
-              <label key={value} className="flex items-center gap-3 rounded-[1.4rem] border border-border bg-background-soft px-4 py-3">
+              <label key={value} className="flex items-center gap-3 rounded-[1.1rem] border border-border bg-background-soft px-4 py-3">
                 <RadioGroupItem value={value} />
                 <span className="text-sm font-medium text-foreground">{label}</span>
               </label>
