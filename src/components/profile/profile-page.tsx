@@ -21,7 +21,7 @@ const schema = z.object({
   email: z.string().email(),
   location: z.string().min(2),
   searchRadius: z.number().min(25).max(3000),
-  interest: z.string().min(6),
+  interest: z.string().min(4),
   field: z.enum(FIELDS),
   projectsText: z.string().optional(),
   resumeFileName: z.string().optional(),
@@ -91,20 +91,20 @@ export function ProfilePage() {
   }
 
   if (profileQuery.isLoading) {
-    return <Skeleton className="h-[520px] w-full rounded-[2rem]" />;
+    return <Skeleton className="h-[520px] w-full rounded-[1.5rem]" />;
   }
 
   return (
     <div className="space-y-8">
       <SectionHeading
         eyebrow="Profile"
-        title="Keep your research context current."
-        description="Update interests, project notes, and resume details any time. Better context leads to better fit explanations and stronger draft suggestions."
+        title="Your profile"
+        description="Keep your interests and background up to date."
       />
 
-      <Card className="bg-white/82">
+      <Card className="bg-paper">
         <CardHeader>
-          <CardTitle>Student profile</CardTitle>
+          <CardTitle>Basic info</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="grid gap-5 md:grid-cols-2" onSubmit={form.handleSubmit((values) => void onSubmit(values))}>
@@ -121,11 +121,17 @@ export function ProfilePage() {
               <Input id="location" {...form.register("location")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="radius">Search radius</Label>
-              <Input id="radius" type="number" min={25} max={3000} {...form.register("searchRadius", { valueAsNumber: true })} />
+              <Label htmlFor="radius">Radius</Label>
+              <Input
+                id="radius"
+                type="number"
+                min={25}
+                max={3000}
+                {...form.register("searchRadius", { valueAsNumber: true })}
+              />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="interest">Interests</Label>
+              <Label htmlFor="interest">Interest</Label>
               <Textarea id="interest" {...form.register("interest")} />
             </div>
             <div className="space-y-2">
