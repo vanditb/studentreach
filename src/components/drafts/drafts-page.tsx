@@ -13,7 +13,14 @@ import { StatusChip } from "@/components/shared/status-chip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAnalyzeDraft, useDraft, useDrafts, useGenerateDraft, useProfessor, useSaveDraft } from "@/hooks/use-studentreach";
+import {
+  useAnalyzeDraft,
+  useDraft,
+  useDrafts,
+  useGenerateDraft,
+  useProfessor,
+  useSaveDraft,
+} from "@/hooks/use-studentreach";
 import { type DraftAnalysis, type DraftStatus, type DraftTone, type OutreachDraft } from "@/types";
 import { DraftEditor } from "./draft-editor";
 import { OutreachFeedbackPanel } from "./outreach-feedback-panel";
@@ -23,11 +30,13 @@ function deriveStatus(analysis: DraftAnalysis | null): DraftStatus {
   if (!analysis) {
     return "Draft";
   }
+
   const hasWarning = analysis.outreachFeedback.some((item) => item.tone === "warning");
   const needsMore = analysis.outreachFeedback.some((item) => item.tone === "suggestion");
   if (hasWarning || needsMore) {
     return "Needs Work";
   }
+
   return "Ready to Send";
 }
 
@@ -56,6 +65,7 @@ export function DraftsPage() {
     if (!draft) {
       return;
     }
+
     setTone(draft.tone);
     setSubject(draft.subject);
     setContent(draft.content);
@@ -75,7 +85,7 @@ export function DraftsPage() {
   const contextNotes = useMemo(
     () =>
       activeProfessor
-        ? [activeProfessor.workSummary, ...activeProfessor.goodTalkingPoints].slice(0, 3)
+        ? [activeProfessor.workSummary, ...activeProfessor.goodTalkingPoints].filter(Boolean).slice(0, 3)
         : [],
     [activeProfessor],
   );
@@ -100,7 +110,7 @@ export function DraftsPage() {
 
   async function handleSave() {
     if (!activeProfessor) {
-      toast.error("Pick a professor before saving a draft.");
+      toast.error("Pick a professor before saving.");
       return;
     }
 
@@ -134,36 +144,37 @@ export function DraftsPage() {
       toast.error("Write or generate a draft first.");
       return;
     }
+
     const nextAnalysis = await analyzeDraft.mutateAsync({ content, professorId: activeProfessor.id });
     setAnalysis(nextAnalysis);
-    toast.success("Feedback refreshed.");
+    toast.success("Feedback updated.");
   }
 
   if (draftsQuery.isLoading) {
-    return <Skeleton className="h-[520px] w-full rounded-[2rem]" />;
+    return <Skeleton className="h-[520px] w-full rounded-[1.5rem]" />;
   }
 
   return (
     <div className="space-y-8">
       <SectionHeading
-        eyebrow="Drafts"
-        title="Write with context, then polish with a supportive review."
-        description="StudentReach does not send the email for you. The goal is a better note, not a mass outreach shortcut."
+        eyebrow="Email"
+        title="Write your email"
+        description="Keep it specific, short, and real."
       />
 
       {selectedProfessorId || draftIdFromQuery ? (
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-6">
-            <Card className="bg-white/82">
+            <Card className="bg-paper">
               <CardHeader>
-                <CardTitle>Selected professor context</CardTitle>
+                <CardTitle>Professor</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {activeProfessor ? (
                   <>
                     <div>
-                      <div className="font-serif text-2xl text-foreground">{activeProfessor.name}</div>
-                      <div className="text-sm leading-6 text-muted-foreground">
+                      <div className="font-serif text-3xl tracking-[-0.03em] text-foreground">{activeProfessor.name}</div>
+                      <div className="mt-1 text-sm leading-6 text-muted-foreground">
                         {activeProfessor.title} · {activeProfessor.university}
                       </div>
                     </div>
@@ -174,7 +185,7 @@ export function DraftsPage() {
                     </div>
                     <div className="grid gap-3 md:grid-cols-3">
                       {contextNotes.map((note) => (
-                        <div key={note} className="rounded-[1.4rem] border border-border bg-background-soft p-4 text-sm leading-6 text-muted-foreground">
+                        <div key={note} className="rounded-[1.1rem] border border-border bg-background-soft p-4 text-sm leading-6 text-muted-foreground">
                           {note}
                         </div>
                       ))}
@@ -199,61 +210,62 @@ export function DraftsPage() {
             />
           </div>
 
-          <div className="space-y-4 xl:sticky xl:top-28 xl:self-start">
+          <div className="space-y-4 xl:sticky xl:top-24 xl:self-start">
             <div className="flex gap-2">
               <Button variant="secondary" className="flex-1" onClick={() => void refreshFeedback()}>
                 {analyzeDraft.isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                Refresh feedback
+                Refresh tips
               </Button>
               <Button variant="ghost" className="flex-1" onClick={() => setShowReadiness((value) => !value)}>
-                {showReadiness ? "Hide readiness" : "Show readiness"}
+                {showReadiness ? "Hide note" : "Show note"}
               </Button>
             </div>
+
             <OutreachFeedbackPanel analysis={analysis} />
+
             {showReadiness ? (
-              <Card className="bg-background-soft">
+              <Card className="bg-paper">
                 <CardHeader>
-                  <CardTitle>Outreach Readiness</CardTitle>
+                  <CardTitle>Before you send</CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm leading-6 text-muted-foreground">
                   {analysis?.readinessNudge ??
-                    "Optional and supportive by design. If you are early, highlighting one concrete class, project, or reason you care about the topic is usually enough."}
+                    "You might improve your chances by mentioning one project, class, or clear reason you care about this topic."}
                 </CardContent>
               </Card>
             ) : null}
+
             <PreSendChecklist analysis={analysis} />
           </div>
         </div>
       ) : listDrafts.length ? (
-        <div className="space-y-5">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {listDrafts.map((draft) => (
-              <Card key={draft.id} className="bg-white/82">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <CardTitle className="text-xl">{draft.subject}</CardTitle>
-                    <StatusChip status={draft.status} />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    Updated {formatDistanceToNow(new Date(draft.updatedAt), { addSuffix: true })}
-                  </p>
-                  <p className="line-clamp-4 text-sm leading-6 text-muted-foreground">{draft.content}</p>
-                  <Button asChild className="w-full">
-                    <Link href={`/drafts?draft=${draft.id}`}>Open draft</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {listDrafts.map((draft) => (
+            <Card key={draft.id} className="bg-paper">
+              <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                  <CardTitle className="text-xl">{draft.subject}</CardTitle>
+                  <StatusChip status={draft.status} />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm leading-6 text-muted-foreground">
+                  Updated {formatDistanceToNow(new Date(draft.updatedAt), { addSuffix: true })}
+                </p>
+                <p className="line-clamp-4 text-sm leading-6 text-muted-foreground">{draft.content}</p>
+                <Button asChild className="w-full">
+                  <Link href={`/drafts?draft=${draft.id}`}>Open draft</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       ) : (
         <EmptyState
-          title="No saved drafts yet"
-          description="Choose a professor from Discover or from your Shortlist, then open the draft workspace to generate and revise an outreach note."
+          title="No drafts yet"
+          description="Choose a professor first, then start writing."
           actionHref="/discover"
-          actionLabel="Start from discover"
+          actionLabel="Go to search"
         />
       )}
     </div>
