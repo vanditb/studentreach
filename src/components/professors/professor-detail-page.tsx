@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { ExternalLink, Mail, NotebookPen, Star } from "lucide-react";
-import { AnnotationBadge } from "@/components/shared/annotation-badge";
 import { ResearchTag } from "@/components/shared/research-tag";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useProfessor, useProfessorInsights, useShortlist, useToggleShortlist } from "@/hooks/use-studentreach";
+import {
+  useProfessor,
+  useProfessorInsights,
+  useShortlist,
+  useToggleShortlist,
+} from "@/hooks/use-studentreach";
 import { RecentPapersList } from "./recent-papers-list";
 import { ResearchBreakdownPanel } from "./research-breakdown-panel";
 
@@ -24,47 +28,49 @@ export function ProfessorDetailPage({ professorId }: { professorId: string }) {
   if (professorQuery.isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-14 w-96" />
-        <Skeleton className="h-[220px] w-full rounded-[2rem]" />
-        <Skeleton className="h-[320px] w-full rounded-[2rem]" />
+        <Skeleton className="h-14 w-72" />
+        <Skeleton className="h-[220px] w-full rounded-[1.5rem]" />
+        <Skeleton className="h-[320px] w-full rounded-[1.5rem]" />
       </div>
     );
   }
 
   if (!professor) {
     return (
-      <Card className="bg-white/82">
+      <Card className="bg-paper">
         <CardContent className="p-6 text-sm text-muted-foreground">
-          We could not find that professor in the seeded dataset. Head back to discover and pick another profile.
+          That professor could not be found.
         </CardContent>
       </Card>
     );
   }
 
+  const workSummary = insightsQuery.data?.workSummary ?? professor.workSummary;
+  const currentFocus = insightsQuery.data?.currentFocus ?? professor.currentFocus;
+  const whyFit = insightsQuery.data?.whyFit ?? professor.whyFit;
+  const talkingPoints = insightsQuery.data?.goodTalkingPoints ?? professor.goodTalkingPoints;
+  const papers = insightsQuery.data?.recentPapers ?? professor.recentPapers;
+
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+      <div className="text-sm text-muted-foreground">
         <Link href="/discover" className="font-medium text-primary">
-          Discover
+          Search
         </Link>
-        <span>/</span>
+        <span className="mx-2">/</span>
         <span>{professor.name}</span>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-6">
-          <div className="rounded-[2rem] border border-border-strong bg-white/82 p-6 sm:p-8">
+          <section className="border-b border-border pb-8">
             <div className="flex flex-wrap items-start justify-between gap-6">
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-3">
-                  <AnnotationBadge label={professor.field} tone="blue" />
-                  <AnnotationBadge label={professor.title} tone="green" />
-                </div>
+              <div className="max-w-3xl">
                 <SectionHeading
                   title={professor.name}
                   description={`${professor.title} · ${professor.university} · ${professor.department}`}
                 />
-                <div className="flex flex-wrap gap-2">
+                <div className="mt-5 flex flex-wrap gap-2">
                   {professor.researchTags.map((tag) => (
                     <ResearchTag key={tag} label={tag} />
                   ))}
@@ -75,29 +81,26 @@ export function ProfessorDetailPage({ professorId }: { professorId: string }) {
                 <Button asChild>
                   <Link href={`/drafts?professor=${professor.id}`}>
                     <NotebookPen className="h-4 w-4" />
-                    Draft outreach email
+                    Write email
                   </Link>
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => toggleShortlist.mutate(professor.id)}
-                >
+                <Button variant="secondary" onClick={() => toggleShortlist.mutate(professor.id)}>
                   <Star className="h-4 w-4" />
                   {saved ? "Saved" : "Save"}
                 </Button>
               </div>
             </div>
-          </div>
+          </section>
 
-          <Card className="bg-white/82">
+          <Card className="bg-paper">
             <CardHeader>
-              <CardTitle>What They Actually Work On</CardTitle>
+              <CardTitle>What they work on</CardTitle>
             </CardHeader>
             <CardContent>
               {insightsQuery.isLoading ? (
                 <Skeleton className="h-28 w-full" />
               ) : (
-                <p className="text-base leading-8 text-muted-foreground">{insightsQuery.data?.workSummary ?? professor.workSummary}</p>
+                <p className="text-base leading-8 text-muted-foreground">{workSummary}</p>
               )}
             </CardContent>
           </Card>
@@ -105,79 +108,81 @@ export function ProfessorDetailPage({ professorId }: { professorId: string }) {
           <ResearchBreakdownPanel items={insightsQuery.data?.researchBreakdown ?? professor.researchBreakdown} />
 
           <div className="grid gap-6 md:grid-cols-2">
-            <Card className="bg-white/82">
+            <Card className="bg-paper">
               <CardHeader>
-                <CardTitle>Why This Might Be a Fit</CardTitle>
+                <CardTitle>Why this might be a fit</CardTitle>
               </CardHeader>
-              <CardContent className="text-sm leading-7 text-muted-foreground">
-                {insightsQuery.data?.whyFit ?? professor.whyFit}
-              </CardContent>
+              <CardContent className="text-sm leading-7 text-muted-foreground">{whyFit}</CardContent>
             </Card>
 
-            <Card className="bg-white/82">
+            <Card className="bg-paper">
               <CardHeader>
-                <CardTitle>Current Focus</CardTitle>
+                <CardTitle>Current focus</CardTitle>
               </CardHeader>
-              <CardContent className="text-sm leading-7 text-muted-foreground">
-                {insightsQuery.data?.currentFocus ?? professor.currentFocus}
-              </CardContent>
+              <CardContent className="text-sm leading-7 text-muted-foreground">{currentFocus}</CardContent>
             </Card>
           </div>
 
-          <Card className="bg-white/82">
+          <Card className="bg-paper">
             <CardHeader>
-              <CardTitle>Good Talking Points</CardTitle>
+              <CardTitle>What to mention</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {(insightsQuery.data?.goodTalkingPoints ?? professor.goodTalkingPoints).map((point) => (
-                <div key={point} className="rounded-[1.4rem] border border-border bg-background-soft p-4 text-sm leading-6 text-muted-foreground">
+              {talkingPoints.map((point) => (
+                <div key={point} className="rounded-[1.2rem] border border-border bg-background-soft p-4 text-sm leading-6 text-muted-foreground">
                   {point}
                 </div>
               ))}
             </CardContent>
           </Card>
 
-          <RecentPapersList papers={insightsQuery.data?.recentPapers ?? professor.recentPapers} />
+          <RecentPapersList papers={papers} />
         </div>
 
-        <div className="space-y-4 xl:sticky xl:top-28 xl:self-start">
-          <Card className="bg-white/82">
+        <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+          <Card className="bg-paper">
             <CardHeader>
-              <CardTitle>Quick actions</CardTitle>
+              <CardTitle>Contact</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button asChild className="w-full">
-                <Link href={`/drafts?professor=${professor.id}`}>Open draft workspace</Link>
+                <Link href={`/drafts?professor=${professor.id}`}>Write email</Link>
               </Button>
-              <Button asChild variant="secondary" className="w-full">
-                <a href={professor.facultyPage} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                  Faculty page
-                </a>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <a href={`mailto:${professor.email}`}>
-                  <Mail className="h-4 w-4" />
-                  {professor.email}
-                </a>
-              </Button>
+
+              {professor.facultyPage ? (
+                <Button asChild variant="outline" className="w-full">
+                  <a href={professor.facultyPage} target="_blank" rel="noreferrer">
+                    <ExternalLink className="h-4 w-4" />
+                    Faculty page
+                  </a>
+                </Button>
+              ) : null}
+
+              {professor.email ? (
+                <Button asChild variant="secondary" className="w-full">
+                  <a href={`mailto:${professor.email}`}>
+                    <Mail className="h-4 w-4" />
+                    {professor.email}
+                  </a>
+                </Button>
+              ) : (
+                <div className="rounded-[1rem] border border-border bg-background-soft p-4 text-sm leading-6 text-muted-foreground">
+                  No public email listed.
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          <Card className="bg-background-soft">
+          <Card className="bg-paper">
             <CardHeader>
-              <CardTitle>Research notes</CardTitle>
+              <CardTitle>At a glance</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-              <div className="rounded-[1.4rem] border border-border bg-white/75 p-4">
-                Search results load without waiting on this detail layer, which keeps discovery feeling much faster.
-              </div>
-              <div className="rounded-[1.4rem] border border-border bg-white/75 p-4">
-                Students copy the final email and send it themselves. StudentReach does not support mass sending.
-              </div>
+              <div>{professor.credibilitySignal}</div>
+              <div>{professor.city && professor.state ? `${professor.city}, ${professor.state}` : professor.university}</div>
             </CardContent>
           </Card>
-        </div>
+        </aside>
       </div>
     </div>
   );
