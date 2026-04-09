@@ -3,13 +3,13 @@ import { type Paper } from "@/types";
 
 export function RecentPapersList({ papers }: { papers: Paper[] }) {
   return (
-    <Card className="bg-white/82">
+    <Card className="bg-paper">
       <CardHeader>
-        <CardTitle>Recent Papers</CardTitle>
+        <CardTitle>Recent topics or papers</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {papers.map((paper) => (
-          <div key={paper.id} className="rounded-[1.4rem] border border-border bg-background-soft p-4">
+          <div key={paper.id} className="rounded-[1.2rem] border border-border bg-background-soft p-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="font-medium text-foreground">{paper.title}</div>
