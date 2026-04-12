@@ -1,12 +1,12 @@
 "use client";
 
-import { StudentReachMockService } from "@/services/mock/studentreach-mock-service";
+import { ApiStudentReachService } from "@/services/api-studentreach-service";
 
-let service: StudentReachMockService | null = null;
+let service: ApiStudentReachService | null = null;
 
 export function getStudentReachService() {
   if (!service) {
-    service = new StudentReachMockService();
+    service = new ApiStudentReachService();
   }
 
   return service;

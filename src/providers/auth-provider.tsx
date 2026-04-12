@@ -23,6 +23,16 @@ const demoUser: SessionUser = {
   mode: "demo",
 };
 
+async function persistDemoSession(user: SessionUser) {
+  await fetch("/api/auth/demo", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ user }),
+  });
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,6 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cachedUser = readStorage<SessionUser | null>(STORAGE_KEYS.auth, null);
     if (cachedUser) {
       setUser(cachedUser);
+      if (cachedUser.mode === "demo") {
+        void persistDemoSession(cachedUser);
+      }
       setLoading(false);
       return;
     }
@@ -48,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: data.session.user.email ?? "",
           name: data.session.user.user_metadata.full_name ?? data.session.user.email ?? "Student",
           mode: "supabase",
+          accessToken: data.session.access_token,
         };
         setUser(nextUser);
         writeStorage(STORAGE_KEYS.auth, nextUser);
@@ -71,6 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: data.user.email ?? credentials.email,
         name: data.user.user_metadata.full_name ?? credentials.email.split("@")[0],
         mode: "supabase",
+        accessToken: data.session?.access_token,
       };
       setUser(nextUser);
       writeStorage(STORAGE_KEYS.auth, nextUser);
@@ -83,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: credentials.email.split("@")[0],
       mode: "demo",
     };
+    await persistDemoSession(fallbackUser);
     setUser(fallbackUser);
     writeStorage(STORAGE_KEYS.auth, fallbackUser);
   }
@@ -107,6 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: credentials.email,
         name: credentials.name ?? credentials.email.split("@")[0],
         mode: "supabase",
+        accessToken: data.session?.access_token,
       };
       setUser(nextUser);
       writeStorage(STORAGE_KEYS.auth, nextUser);
@@ -119,11 +136,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: credentials.name ?? credentials.email.split("@")[0],
       mode: "demo",
     };
+    await persistDemoSession(fallbackUser);
     setUser(fallbackUser);
     writeStorage(STORAGE_KEYS.auth, fallbackUser);
   }
 
   async function continueAsDemo() {
+    await persistDemoSession(demoUser);
     setUser(demoUser);
     writeStorage(STORAGE_KEYS.auth, demoUser);
   }
@@ -133,6 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (supabase && hasSupabaseCredentials) {
       await supabase.auth.signOut();
     }
+    await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     writeStorage(STORAGE_KEYS.auth, null);
   }

@@ -131,6 +131,7 @@ export type SessionUser = {
   email: string;
   name: string;
   mode: "demo" | "supabase";
+  accessToken?: string;
 };
 
 export type AuthCredentials = {
