@@ -1,0 +1,190 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f1e8;
+  --background-soft: #fcf8f2;
+  --paper: rgba(255, 252, 247, 0.9);
+  --paper-strong: #fffdf9;
+  --foreground: #162235;
+  --muted-foreground: #536172;
+  --border: rgba(27, 42, 58, 0.12);
+  --border-strong: rgba(27, 42, 58, 0.22);
+  --card: rgba(255, 253, 248, 0.96);
+  --primary: #23425f;
+  --primary-foreground: #f4f1ea;
+  --secondary: #dce7e2;
+  --secondary-foreground: #183245;
+  --accent: #78958b;
+  --accent-foreground: #0f2232;
+  --gold: #b98a49;
+  --rust: #a55a44;
+  --success: #567867;
+  --warning: #a77339;
+  --destructive: #b45750;
+  --ring: rgba(35, 66, 95, 0.3);
+  --shadow: 0 18px 40px rgba(19, 31, 43, 0.08);
+  --radius: 1.35rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-soft: var(--background-soft);
+  --color-paper: var(--paper);
+  --color-paper-strong: var(--paper-strong);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
+  --color-rust: var(--rust);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25), transparent 20%),
+    radial-gradient(circle at top left, rgba(185, 138, 73, 0.12), transparent 28%),
+    linear-gradient(180deg, #fbf7f0 0%, #f7f1e8 100%);
+  color: var(--foreground);
+  font-family: var(--font-body), sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(120, 149, 139, 0.28);
+  color: var(--foreground);
+}
+
+a,
+button,
+[role="button"] {
+  transition:
+    color 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease,
+    opacity 200ms ease;
+}
+
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.paper-grid {
+  background-image:
+    linear-gradient(rgba(35, 66, 95, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35, 66, 95, 0.045) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.margin-rule::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 1.25rem;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(120, 149, 139, 0.35) 12%,
+    rgba(120, 149, 139, 0.2) 88%,
+    transparent 100%
+  );
+}
+
+.note-shadow {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 16px 36px rgba(21, 36, 50, 0.08);
+}
+
+.paper-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.paper-tab {
+  position: relative;
+  overflow: hidden;
+}
+
+.paper-tab::after {
+  content: "";
+  position: absolute;
+  inset-inline: 18%;
+  bottom: 0.2rem;
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 200ms ease;
+}
+
+.paper-tab[data-state="active"]::after {
+  background: rgba(35, 66, 95, 0.7);
+}
+
+.grain {
+  position: relative;
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  background-image: radial-gradient(rgba(31, 50, 68, 0.25) 0.4px, transparent 0.5px);
+  background-size: 8px 8px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
